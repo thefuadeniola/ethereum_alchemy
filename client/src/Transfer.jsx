@@ -1,5 +1,6 @@
 import { useState } from "react";
 import server from "./server";
+import { secp256k1 } from "ethereum-cryptography/secp256k1";
 
 function Transfer({ address, setBalance }) {
   const [sendAmount, setSendAmount] = useState("");
@@ -11,16 +12,20 @@ function Transfer({ address, setBalance }) {
     evt.preventDefault();
 
     try {
-      const {
-        data: { balance },
-      } = await server.post(`send`, {
-        sender: address,
+      const privKey = localStorage.getItem('edsca_pk')
+      const hash = 'c78fb7b2e3c9c2e712beb3f0810da51cfd22c24f931002cf7b8fe9ec042de50c'
+      const sign = secp256k1.sign(hash, privKey, {recovery: true})
+
+      const data = await server.post(`send`, {
         amount: parseInt(sendAmount),
+        hash,
         recipient,
+        sender: address,
+        signature: JSON.parse(JSON.stringify(sign, (key, value) => typeof value === 'bigint' ? value.toString() : value)),
       });
-      setBalance(balance);
-    } catch (ex) {
-      alert(ex.response.data.message);
+      setBalance(data.balance);
+    } catch (error) {
+      console.log(error);
     }
   }
 

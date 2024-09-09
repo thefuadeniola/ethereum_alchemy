@@ -1,6 +1,6 @@
 import server from "./server";
 
-function Wallet({ address, setAddress, balance, setBalance }) {
+function Wallet({ address, setAddress, balance, setBalance, message }) {
   async function onChange(evt) {
     const address = evt.target.value;
     setAddress(address);
@@ -24,6 +24,7 @@ function Wallet({ address, setAddress, balance, setBalance }) {
       </label>
 
       <div className="balance">Balance: {balance}</div>
+      <div dangerouslySetInnerHTML={{ __html: message }} className="red" />
     </div>
   );
 }
