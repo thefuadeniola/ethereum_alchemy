@@ -1,36 +1,53 @@
-import { Alchemy, Network } from 'alchemy-sdk';
 import { useEffect, useState } from 'react';
-
+import { useStateContext } from './Context';
 import './App.css';
-
-// Refer to the README doc for more information about using API
-// keys in client-side code. You should never do this in production
-// level code.
-const settings = {
-  apiKey: process.env.REACT_APP_ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-};
-
-
-// In this week's lessons we used ethers.js. Here we are using the
-// Alchemy SDK is an umbrella library with several different packages.
-//
-// You can read more about the packages here:
-//   https://docs.alchemy.com/reference/alchemy-sdk-api-surface-overview#api-surface
-const alchemy = new Alchemy(settings);
+import Nav from './Components/Nav';
+import Hero from './Components/Hero';
+import Latest from './Components/Latest';
 
 function App() {
+  const {getLastBlocks, getLivePrices, getHistoricPrice, getLatestBlockTransactions} = useStateContext();
   const [blockNumber, setBlockNumber] = useState();
+  const [ethDetails, setEthDetails] = useState()
+  const [historicPrice, setHistoricPrice] = useState()
+  const [transactions, setTransactions] = useState()
+  const [blocks, setBlocks] = useState()
 
-  useEffect(() => {
-    async function getBlockNumber() {
-      setBlockNumber(await alchemy.core.getBlockNumber());
+  useEffect(()=>{
+    const getBlocks = async () => {
+      const data = await getLastBlocks()
+      setBlocks(data)
+      setBlockNumber(data[data.length - 1])
     }
 
-    getBlockNumber();
-  });
+    const getPrices = async () => {
+      const {data} = await getLivePrices()
+      setEthDetails(data.rates.ETH)
+    }
 
-  return <div className="App">Block Number: {blockNumber}</div>;
+    const getOldPrice = async () => {
+      const {data} = await getHistoricPrice()
+      setHistoricPrice(data.rates.ETH)
+    }
+
+    const getTransactions = async () => {
+      const data = await getLatestBlockTransactions();
+      setTransactions(data)
+    }
+
+    getBlocks()
+    getPrices()
+    getOldPrice()
+    getTransactions()
+  }, [getLastBlocks, getLivePrices, getHistoricPrice, getLatestBlockTransactions])
+
+  return (
+    <div className="App">
+      <Nav latestBlock={blockNumber} />
+      <Hero blockNumber={blockNumber} price={ethDetails} historicPrice={historicPrice} transactions={transactions} />
+      <Latest blocks={blocks} transactions={transactions}/>
+    </div>
+  );
 }
 
 export default App;
