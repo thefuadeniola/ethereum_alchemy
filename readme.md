@@ -6,3 +6,6 @@ This project is an example of using a client and server to facilitate transfers 
 
 ### 2: Merkle Tree Implementation
 This project branch is an example of how the blockchain makes storage, proving and verification effective and  lightweight using merkle trees. It contains a index.js client file, an index.js server file and an utility folder containing the tree, proof and verification algorithms.
+
+### 2: Block Explorer using RPC URLs
+This project makes use of Alchemy's RPC URL to make read request to the ethereum node. Using these rpcs, I was able to pull data and make a custom block explorer, just like etherscan. It allows user to view last mined blocks, the miner and transactions too. Update will allow users to view wallets and the token balances. If an address is a contract, it displays the deployer.
